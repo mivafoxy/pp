@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <mpi.h> 
 #include <stdio.h> 
+#include <math.h> 
 
 void show(double** a, int n) {
 	for (int i = 0; i < n; i++) {
@@ -89,7 +90,7 @@ double f2(double** a, int* map, int myrank, int nprocs, int n) {
 			//MPI_Bcast(&a[j][k], 1, MPI_DOUBLE, map[k], MPI_COMM_WORLD);
 			//MPI_Bcast(&a[j][indMax], 1, MPI_DOUBLE, map[k], MPI_COMM_WORLD);
 		}
-		
+
 		MPI_Barrier(MPI_COMM_WORLD);
 
 		for (int i = k + 1; i < n; i++) {
@@ -147,8 +148,6 @@ double f3(double** a, int* map, int myrank, int nprocs, int n) {
 
 	return 0;
 }
-
-
 
 // максимальный по столбцу
 double f4(double** a, int* map, int myrank, int nprocs, int n) {
@@ -228,6 +227,62 @@ double f4(double** a, int* map, int myrank, int nprocs, int n) {
 	return 0;
 }
 
+
+double norm(double** a, int n) {
+	
+	double max = 0;
+	for (int i = 0; i < n; i++) {
+		double sum = 0;
+		for (int j = 0; j < n; j++) {
+			sum += fabs(a[i][j]);
+		}
+		if (sum > max) {
+			max = sum;
+		}
+	}
+	return max;
+}
+
+
+double norm2(double** a, int n) {
+	double** res = new double*[n];
+	double** l = new double*[n];
+	double** u = new double*[n];
+
+	for (int i = 0; i < n; i++) {
+		res[i] = new double[n];
+		l[i] = new double[n];
+		u[i] = new double[n];
+		for (int j = 0; j < n; j++) {
+			if (i == j) {
+				l[i][j] = 1;
+				u[i][j] = a[i][j];
+			}
+			else if (j > i) {
+				l[i][j] = 0;
+				u[i][j] = a[i][j];
+			}
+			else {
+				l[i][j] = a[i][j];
+				u[i][j] = 0;
+			}
+		}
+	}
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			double temp = 0;
+			for (int k = 0; k < n; k++) {
+				temp += l[i][k] * u[k][j];
+			}
+			res[i][j] = temp;
+		}
+	}
+
+	return norm(res, n);
+
+}
+
 int main(int argc, char *argv[])
 {
 	int myrank, nprocs;
@@ -240,7 +295,9 @@ int main(int argc, char *argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
 	for (int fun = 0; fun < 4; fun++) {
-		fprintf(f, "Значение n\t Время вычислений (в сек.)\t Точность вычислений\n");
+		if (myrank == 0) {
+			fprintf(f, "Значение n\t Время вычислений (в сек.)\t Точность вычислений\n");
+		}
 		for (int k = 0, n = N[k]; k < 5; k++, n = N[k]) {
 
 			int *map = new int[n];
@@ -254,6 +311,8 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			double cn = norm(a, n);
+
 			for (int i = 0; i < n; i++) {
 				map[i] = i % nprocs;
 			}
@@ -262,27 +321,35 @@ int main(int argc, char *argv[])
 			switch (fun) {
 			case 0:
 				time = MPI_Wtime();
-				error = f1(a, map, myrank, nprocs, n);
+				f1(a, map, myrank, nprocs, n);
 				time = MPI_Wtime() - time;
+				error = fabs(cn - norm2(a, n));
 				break;
 			case 1:
 				time = MPI_Wtime();
-				error = f2(a, map, myrank, nprocs, n);
+				f2(a, map, myrank, nprocs, n);
 				time = MPI_Wtime() - time;
+				error = fabs(cn - norm2(a, n));
 				break;
 			case 2:
 				time = MPI_Wtime();
-				error = f3(a, map, myrank, nprocs, n);
+				f3(a, map, myrank, nprocs, n);
 				time = MPI_Wtime() - time;
+				error = fabs(cn - norm2(a, n));
 				break;
 			case 3:
 				time = MPI_Wtime();
-				error = f4(a, map, myrank, nprocs, n);
+				f4(a, map, myrank, nprocs, n);
 				time = MPI_Wtime() - time;
+				error = fabs(cn - norm2(a, n));
 				break;
 			}
 
-			fprintf(f, "%d\t %lg\t %lg\n", n, time, error);
+			double alltime = 0;
+			MPI_Reduce(&time, &alltime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+			if (myrank == 0) {
+				fprintf(f, "%d\t %lg\t %lg\n", n, alltime / (1.0*nprocs), error);
+			}
 
 			delete map, a;
 		}
