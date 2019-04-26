@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
+#include <chrono>
 
 double a = 3.3;
 double b = 4.4;
@@ -22,15 +23,6 @@ const char *g_pcszSource =
 "w[i] = a * x[i] + b * y[i] * z[i]; \n"
 "} \n";
 
-double func(double a, double* x, double b, double* y, double* z, double* w, double n) {
-	double error = 0;
-	for (int i = 0; i < n; i++) {
-		error += fabs(w[i] - (a * x[i] + b * y[i] * z[i]));
-	}
-	return error;
-}
-
-
 int main()
 {
 
@@ -47,23 +39,21 @@ int main()
 	cl_context context = clCreateContext(NULL, 1, &deviceID, NULL, NULL, &errcode_ret);
 
 	errcode_ret = 0;
-	cl_command_queue_properties qprop[] = { 0 };
 	cl_command_queue queue = clCreateCommandQueue(context, deviceID, CL_QUEUE_PROFILING_ENABLE, &errcode_ret);
 
 	errcode_ret = CL_SUCCESS;
 	size_t source_size = strlen(g_pcszSource);
 	cl_program program = clCreateProgramWithSource(context, 1, &g_pcszSource, (const size_t *)&source_size, &errcode_ret);
 
-	cl_int errcode = clBuildProgram(
-		program, 1, &deviceID, NULL, NULL, NULL);
+	cl_int errcode = clBuildProgram(program, 1, &deviceID, NULL, NULL, NULL);
 
 	cl_kernel kernel = clCreateKernel(program, "func", NULL);
 
 	std::ofstream res("text.txt");
-	res << "Время (с.)\tОшибка вычисления\tВремя CPU (с.)" << std::endl;
+	res << "Время (с.)\tВремя CPU (с.)" << std::endl;
 
 	int N = 256;
-	while (N < 10000000) {
+	//while (N < 10000000) {
 		std::cout << N << std::endl;
 		double* x = init(N), *y = init(N), *z = init(N), *w = new double[N];
 
@@ -107,16 +97,11 @@ int main()
 		clEnqueueUnmapMemObject(queue, buffer_w, puData, 0, NULL, NULL);
 		//
 
-		// проверка результата
-		double error = func(a, x, b, y, z, w, N);
-		//std::cout << error << std::endl;
-		//
-
-		long time2 = clock();
+		auto time2_start = std::chrono::high_resolution_clock::now();
 		for (int i = 0; i < N; i++) {
 			w[i] = a * x[i] + b * y[i] * z[i];
 		}
-		time2 = clock() - time2;
+		auto time2_end = std::chrono::high_resolution_clock::now();
 		//std::cout << (double)(time2) / CLOCKS_PER_SEC << std::endl;
 
 		clReleaseMemObject(buffer_x);
@@ -127,8 +112,11 @@ int main()
 
 		N *= 2;
 
-		res << (time_end - time_start) / 1000000000.0 << "\t" << error << "\t" << (double)(time2) / CLOCKS_PER_SEC << std::endl;
-	}
+		double t1 = (time_end - time_start) / 1000000000.0;
+		double t2 = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(time2_end - time2_start).count()) / 1e9;
+
+		res << t1  << "\t" << t2 <<"\t"<< t2/(double)t1 << std::endl;
+	//}
 
 	res.close();
 
