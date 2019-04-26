@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
 			MPI_Reduce(&t2, &allTime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
 			if (myrank == 0) {
-				fprintf(f, "%d\t %.18lg\t %lg\t %lg\n", n, pi, allTime, fabs(pi - PI));
+				fprintf(f, "%d\t %.18lg\t %lg\t %lg\n", n, pi, allTime/(1.0*nprocs), fabs(pi - PI));
 			}
 		}
 	}
