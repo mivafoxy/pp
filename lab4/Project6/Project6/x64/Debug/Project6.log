@@ -1,0 +1,21 @@
+﻿  Source.cpp
+d:\desktop\рр\pp\lab4\project6\project6\source.cpp(148): warning C4018: <: несоответствие типов со знаком и без знака
+c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\include\algorithm(1443): warning C4244: =: преобразование "float" в "_Ty", возможна потеря данных
+          with
+          [
+              _Ty=unsigned char
+          ]
+  d:\desktop\рр\pp\lab4\project6\project6\common\inc\helper_image.h(243): note: выполняется компиляция ссылки на экземпляр шаблон функции "_OutIt *std::transform<unsigned char*,T*,`anonymous-namespace'::ConverterFromUByte<unsigned char>>(const _InIt,const _InIt,_OutIt,_Fn)"
+          with
+          [
+              _OutIt=unsigned char *,
+              T=unsigned char,
+              _InIt=unsigned char *,
+              _Fn=`anonymous-namespace'::ConverterFromUByte<unsigned char>
+          ]
+  d:\desktop\рр\pp\lab4\project6\project6\source.cpp(18): note: выполняется компиляция ссылки на экземпляр шаблон функции "bool sdkLoadPGM<unsigned char>(const char *,T **,unsigned int *,unsigned int *)"
+          with
+          [
+              T=unsigned char
+          ]
+  Project6.vcxproj -> D:\Desktop\рр\pp\lab4\Project6\x64\Debug\Project6.exe

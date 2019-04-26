@@ -1,0 +1,29 @@
+﻿  Compiling CUDA source file kernel.cu...
+  
+  D:\Desktop\рр\pp\lab4\dfgfd\dfgfd>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" -gencode=arch=compute_35,code=\"sm_35,compute_35\" --use-local-env -ccbin "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\bin\HostX86\x64" -x cu  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\include"  -G   --keep-dir x64\Debug -maxrregcount=0  --machine 64 --compile -cudart static  -g   -DWIN32 -DWIN64 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Fdx64\Debug\vc141.pdb /FS /Zi /RTC1 /MDd " -o x64\Debug\kernel.cu.obj "D:\Desktop\рр\pp\lab4\dfgfd\dfgfd\kernel.cu" 
+D:/Desktop/ЁЁ/pp/lab4/dfgfd/dfgfd/kernel.cu(69): warning : conversion from a string literal to "char *" is deprecated
+D:/Desktop/ЁЁ/pp/lab4/dfgfd/dfgfd/kernel.cu(70): warning : conversion from a string literal to "char *" is deprecated
+D:/Desktop/ЁЁ/pp/lab4/dfgfd/dfgfd/kernel.cu(70): warning : variable "d_result_path" was declared but never referenced
+D:/Desktop/ЁЁ/pp/lab4/dfgfd/dfgfd/kernel.cu(69): warning : conversion from a string literal to "char *" is deprecated
+D:/Desktop/ЁЁ/pp/lab4/dfgfd/dfgfd/kernel.cu(70): warning : conversion from a string literal to "char *" is deprecated
+  kernel.cu
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include\algorithm(1443): warning C4244: =: преобразование "float" в "_Ty", возможна потеря данных
+          with
+          [
+              _Ty=unsigned char
+          ]
+  d:\desktop\рр\pp\lab4\dfgfd\dfgfd\./common/inc/helper_image.h(243): note: выполняется компиляция ссылки на экземпляр шаблон функции "_OutIt *std::transform<unsigned char*,T*,_GLOBAL__N__41_tmpxft_00003138_00000000_7_kernel_cpp1_ii_82baf239::ConverterFromUByte<unsigned char>>(const _InIt,const _InIt,_OutIt,_Fn)"
+          with
+          [
+              _OutIt=unsigned char *,
+              T=unsigned char,
+              _InIt=unsigned char *,
+              _Fn=_GLOBAL__N__41_tmpxft_00003138_00000000_7_kernel_cpp1_ii_82baf239::ConverterFromUByte<unsigned char>
+          ]
+  D:/Desktop/рр/pp/lab4/dfgfd/dfgfd/kernel.cu(41): note: выполняется компиляция ссылки на экземпляр шаблон функции "bool sdkLoadPGM<unsigned char>(const char *,T **,unsigned int *,unsigned int *)"
+          with
+          [
+              T=unsigned char
+          ]
+     Создается библиотека D:\Desktop\рр\pp\lab4\dfgfd\x64\Debug\dfgfd.lib и объект D:\Desktop\рр\pp\lab4\dfgfd\x64\Debug\dfgfd.exp
+  dfgfd.vcxproj -> D:\Desktop\рр\pp\lab4\dfgfd\x64\Debug\dfgfd.exe
