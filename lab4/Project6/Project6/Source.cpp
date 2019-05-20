@@ -8,7 +8,7 @@
 #include "./common/inc/helper_image.h"
 
 unsigned int width = 512, height = 512;
-
+ // Загрузка изображения. Вырвана из лабы по cuda прошлого семестра.
 void loadImage(char *file, unsigned char** pixels, unsigned int * width, unsigned int * height)
 {
 	size_t file_length = strlen(file);
@@ -24,6 +24,8 @@ void loadImage(char *file, unsigned char** pixels, unsigned int * width, unsigne
 	return;
 }
 
+
+// Сохранение изображения. Также вырвано из лабы по cuda прошлого семестра.
 void saveImage(char *file, unsigned char* pixels, unsigned int width, unsigned int  height)
 {
 	size_t file_length = strlen(file);
@@ -34,19 +36,21 @@ void saveImage(char *file, unsigned char* pixels, unsigned int width, unsigned i
 	return;
 }
 
+// Box blur. В каждом потоке обрабатывается часть картинки и выставляется новое значение пикселю, которое вычисляется по формуле с коэффициентом размытия (радиус). 
+// Чем больше этот коэффициент, тем больше размытие. Под размытием подразумевается усреднение цвета пикселя таким образом, чтобы он переставал "контрастировать" с соседними.
 const char *g_pcszSource =
 "__kernel void func(__global unsigned char * im_s,__global unsigned char * im_d,unsigned int w,unsigned int h,int radius) \n"
 "{\n"
-"	int i = get_global_id(0);\n"
-"	int tidx = i / w;\n"
-"	int tidy = i % w;\n"
-"	if (tidx < h && tidy < w)\n"
+/*Идентификатор процесса.*/"	int i = get_global_id(0);\n"
+/*Координата по х на картинке.*/	"	int tidx = i / w;\n"
+/*Координата по у на картинке.*/"	int tidy = i % w;\n"
+/*Если внутри картинки (в её пределах)*/"	if (tidx < h && tidy < w)\n"
 "	{\n"
-"		unsigned int r = 0;\n"
-"		for (int ir = -radius; ir <= radius; ir++)\n"
+/*Радиус для блюра.*/"		unsigned int r = 0;\n"
+/*Идём по строкам и по колонкам пикселей картинки.*/"		for (int ir = -radius; ir <= radius; ir++)\n"
 "			for (int ic = -radius; ic <= radius; ic++)\n"
 "			{\n"
-"				int temp_x, temp_y;\n"
+/*Временные переменные для swap - а пикселей.*/"				int temp_x, temp_y;\n"
 "				if (tidx + ir < 0) {\n"
 "					temp_x = -(tidx + ir);\n"
 "				}\n"
@@ -67,14 +71,14 @@ const char *g_pcszSource =
 "				}\n"
 "				r += im_s[temp_x*w + temp_y];\n"
 "			}\n"
-"		r /= ((2 * radius + 1)*(2 * radius + 1));\n"
-"		im_d[tidx*w + tidy] = (unsigned char)r;\n"
+/*Формула для перерасчёта радиуса. */"		r /= ((2 * radius + 1)*(2 * radius + 1));\n"
+/*Результат обработки box blur-ом*/"		im_d[tidx*w + tidy] = (unsigned char)r;\n"
 "	}\n"
 "}\n";
 int main(int argc, char ** argv)
 {
-	unsigned char * im_s = NULL;
-	unsigned char * d_pixels = NULL;
+	unsigned char * im_s = NULL; // Оригинальное изображение.
+	unsigned char * d_pixels = NULL; // Результирующее изображение.
 
 	int radius = 5;
 	int N = 10;
@@ -82,10 +86,12 @@ int main(int argc, char ** argv)
 	char * src_path = (char*)"lena.pgm";
 	char * d_result_path = (char*)"lena_box_blur.pgm";
 
-	loadImage(src_path, &im_s, &width, &height);
+	loadImage(src_path, &im_s, &width, &height); // Загрузка изображения с записью ее высоты и ширины.
 
 	printf("Image size %dx%d\n", width, height);
 	int image_size = sizeof(unsigned char) * width * height;
+
+	// Код, взятый с предыдущего примера.
 
 	cl_uint uNumPlatforms;
 	clGetPlatformIDs(0, NULL, &uNumPlatforms);
